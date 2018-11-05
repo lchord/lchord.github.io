@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  
+  <!-- head -->
+  <head>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- baidu-site-verification -->
+  
+  <meta name="baidu-site-verification" content= "tQKoWHXsWW" />
+  
+
+  
+  
+  <title>SSH工具连接Google Cloud Platform - lchord</title>
+  <link rel="icon" href="/img/favicon.png" />
+  <link rel="stylesheet" href="/css/find.css">
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/find.js"></script>
+</head>
+  </head>
+  
+  <!-- body -->
+  <body>
+    <nav id=main-nav>
+  <div class="nav-wrap">
+    <div id="logo">
+    <span>lchord</span>
+    </div>
+
+    <div class="nav-toggle">
+		  <span class="line"></span>
+		  <span class="line"></span>
+		  <span class="line"></span>
+    </div>
+    
+    <div id="menu" class="menu-iv">
+      <div class="nav-items">
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+    <header class="hd-img">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="hd-title">
+
+      
+  
+    <h1 class="article-top-title" itemprop="name">
+      SSH工具连接Google Cloud Platform
+    </h1>
+  
+
+
+      
+      
+      <!--
+      <h2></h2>
+      -->
+      
+      
+
+      <div class="article-meta">
+        
+  <span>发布于</span>
+
+<a href="/2018/10/31/ssh-in-google-cloud-platform/" class="article-date"> 
+  <time datetime="2018-10-31T00:00:00.000Z" itemprop="datePublished">2018年10月31日</time></a>
+        <!-- TO DO -->
+
+  <span class="separator"> &nbsp;&nbsp; </span>
+  <span class="article-category">分类于
+    <a class="article-category-link" href="/categories/笔记/">笔记</a>
+  </span>
+
+      </div>
+  </div>
+</header>
+
+<div id="article-page" class="container">
+
+  <article class="article-content">            
+    <p>在Google Cloud Platform创建实例后，通过SSH工具连接可以方便在本地操作使用。我用的是Windows下的mobaXterm，其他类似的SSH工具设置都差不多。</p>
+<h2 id="本地"><a href="#本地" class="headerlink" title="本地"></a>本地</h2><p>首先在Windows PowerShell里生成使用公钥和私钥</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd .ssh # 进入当前用户的.ssh文件夹</span><br><span class="line">ssh-keygen -f gcp-key # 生成密钥文件</span><br><span class="line">Enter passphrase (empty for no passphrase): # 增加密码提高安全性</span><br><span class="line">Enter same passphrase again:</span><br><span class="line">Your identification has been saved in gcp-key. # 私钥存入了gcp-key文件</span><br><span class="line">Your public key has been saved in gcp-key.pub. # 公钥存入了gcp-key.pub文件</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这样在当前用户文件夹下的.ssh文件夹中就创建了一对公钥和私钥文件。用编辑器打开gcp-key.pub公钥文件，复制其中的内容备用。</p>
+<h2 id="Google-Cloud-Platform"><a href="#Google-Cloud-Platform" class="headerlink" title="Google Cloud Platform"></a>Google Cloud Platform</h2><p>进入实例，打开提供的命令行工具。进入用户文件夹下的.ssh文件夹。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd ~/.ssh</span><br></pre></td></tr></table></figure>
+<p>其中有一个名为authorized_keys的文件。内容大致如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Added by Google</span><br><span class="line">ssh-rsa AAAAB3Nza..........</span><br></pre></td></tr></table></figure>
+<p>里面存放的是Google生成的公钥，我们要做的是把我们自己的公钥复制粘贴进去(注意不要更改以前的内容，如果担心操作失误可以提前备份)。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi authorized_keys</span><br><span class="line"></span><br><span class="line"># Added by Google</span><br><span class="line">ssh-rsa AAAAB3Nza.......... # 以前的密钥内容保持不变</span><br><span class="line"></span><br><span class="line"># gcp-key</span><br><span class="line">ssh-rsa .......... # 在以前内容后面粘贴自己公钥文件的内容</span><br><span class="line"></span><br><span class="line">:wq</span><br></pre></td></tr></table></figure>
+<p>另外，操作时可能需要注意权限问题。</p>
+<h2 id="本地使用SSH工具连接"><a href="#本地使用SSH工具连接" class="headerlink" title="本地使用SSH工具连接"></a>本地使用SSH工具连接</h2><p>我使用的是mobaXterm。点击工具栏中的Session -&gt; SSH。在Basic SSH settings中Remote host填写实例的外部ip，这里可以不指定Specify username，端口填写自己的SSH端口，默认22。<br>之后点击下面的Advanced SSH settings，勾选Use private key，输入或者浏览选择之前生成的私钥文件，最后OK确认。<br>左侧单击Sessions，连接时，选择我们刚才设置的ip地址，双击进入。Shell显示如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Passphrase for OpenSSH private key: # 输入设置的passphrase</span><br><span class="line">login as: # 输入用户名，注意不是实例名</span><br><span class="line">Authenticating with public key &quot;Imported-Openssh-Key: C:\Users\$&#123;username&#125;\.ssh\gcp-key&quot;</span><br></pre></td></tr></table></figure>
+<p>完成验证后就可以使用Shell远程操作了。</p>
+
+  </article>
+  
+  
+<nav id="article-nav" >
+  
+    <div id="article-nav-prev" class="article-nav-item">
+    <a href="/2018/11/05/vps-travis-rsync/">
+      <div class="article-nav-word full-hidden">上一篇</div>
+      <div class="article-nav-title mobile-hidden">
+        
+          使用Travis CI自动部署（VPS篇）
+        
+      </div>
+    </a>
+    </div>
+  
+  
+    <div id="article-nav-next" class="article-nav-item">
+      <a href="/2018/01/30/first-snow/">
+        <div class="article-nav-word full-hidden">下一篇</div>
+        <div class="article-nav-title mobile-hidden">初雪</div>
+      </a>
+    </div>
+  
+</nav>
+
+
+</div>
+    <footer id="footer">
+  <div class="container">
+    <div class="footer-wrap">
+        <div class="footer-info">
+        &copy; 2018 lchord<br>
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> &nbsp; Theme: <a href="https://github.com/lchord/find/" target="_blank">find</a>
+      </div>
+    </div>
+  </div>
+</footer>
+  </body>
+  
+</html>
